@@ -1,14 +1,9 @@
 package com.intel.dai.dsimpl.voltdb
 
-import com.intel.dai.dsapi.HWInvHistory
-import com.intel.dai.exceptions.DataStoreException
+
 import com.intel.logging.Logger
-import org.voltdb.ClientResponseImpl
-import org.voltdb.VoltTable
 import org.voltdb.client.Client
-import org.voltdb.client.ClientResponse
 import spock.lang.Specification
-import java.nio.file.Paths
 
 class VoltHWInvDbApiSpec extends Specification {
     VoltHWInvDbApi api
