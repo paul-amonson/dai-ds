@@ -20,9 +20,17 @@ pipeline {
             agent { label "DOCKER-TEST-SERVER-HOST" }
             steps {
                 script { utilities.fixFilesPermission() }
-                dir ('inventory/src/integration/resources/scripts') {
-                    sh './restart_voltdb.sh'
+                script { utilities.invokeGradleNoRetries(":procedures:jar") }
+                timeout(time: 2, unit: 'MINUTES') {
+                    dir('inventory/src/integration/resources/scripts') {
+                        sh './restart_sql_servers.sh'
+                    }
                 }
+                sh 'createdb --host=css-centos-8-00.ra.intel.com --username=postgres dai'
+                sh 'psql --host=css-centos-8-00.ra.intel.com --username=postgres --dbname=dai < data/db/DAI-Tier2-Schema-Psql.sql'
+                sh 'psql --host=css-centos-8-00.ra.intel.com --username=postgres --dbname=dai < inventory/src/integration/resources/scripts/postgres_inventory_data.sql'
+                sh 'sqlcmd < inventory/src/integration/resources/scripts/load_procedures.sql'
+                sh 'sqlcmd < data/db/Combined_VoltDB.sql'
             }
         }
         stage('Sequential Stages') { // all the sub-stages needs to be run on the same machine
@@ -53,9 +61,6 @@ pipeline {
                 stage('Quick Component Tests') {
                     when { expression { "${params.QUICK_BUILD}" == 'true' } }
                     steps {
-                        script {utilities.invokeGradleNoRetries("jar")}
-                        teardownTestbed()
-                        setupTestbed()
                         script { utilities.invokeGradleNoRetries("integrationTest") }
                     }
                 }
@@ -64,10 +69,8 @@ pipeline {
                     steps {
                         script {
                             utilities.cleanWithGit()
-                            utilities.invokeGradleNoRetries("clean jar")
+                            utilities.invokeGradleNoRetries("clean")
                         }
-                        teardownTestbed()
-                        setupTestbed()
                         script { utilities.invokeGradleNoRetries("integrationTest") }
                     }
                 }
@@ -89,12 +92,4 @@ pipeline {
             }
         }
     }
-}
-
-def setupTestbed() {
-    sh 'inventory/src/integration/resources/scripts/setup_testbed.sh'
-}
-
-def teardownTestbed() {
-    sh 'inventory/src/integration/resources/scripts/teardown_testbed.sh'
 }
