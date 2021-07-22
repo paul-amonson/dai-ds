@@ -89,6 +89,7 @@ public class RasEventProviderHPCM implements NetworkListenerProviderEx, Initiali
             }
             processorMap_.put("log_sel", new TopicEventLogSel(log_, false));
             processorMap_.put("SYSLOG", new TopicEventSyslog(log_, false));
+            processorMap_.put("slingshot_CrayFabricHealthTelemetry", new TopicEventFabricHealthTelemetry(log_, false));
         }
     }
 

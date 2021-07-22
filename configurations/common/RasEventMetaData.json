@@ -4712,6 +4712,16 @@
         "GenerateAlert":"Y",
         "Msg":"SYSLOG payload: "
     },
+    {
+        "DescriptiveName":"RasCrayFabricHealthTelemetry",
+        "EventType":"1003000012",
+        "Severity":"INFO",
+        "Category":"Adapter",
+        "Component":"RasProviderHPCM",
+        "ControlOperation":null,
+        "GenerateAlert":"Y",
+        "Msg":"Payload: "
+    },
 
 
     {
