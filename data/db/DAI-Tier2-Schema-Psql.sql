@@ -1287,21 +1287,6 @@ CREATE TABLE public.Tier2_Dimm_History (
 
 
 --- FUNCTION DEFINITIONS START HERE ----
-
--- ForeignTimeStamp is keep as a RFC-3339 string by design.
-CREATE OR REPLACE FUNCTION public.LastRawReplacementHistoryUpdate()
-    RETURNS varchar
-AS $$
-DECLARE
-    max_time_str varchar;
-BEGIN
-    EXECUTE 'SELECT MAX(ForeignTimestamp) FROM tier2_RawHWInventory_History'
-        into max_time_str;
-    RETURN max_time_str;
-END
-$$ LANGUAGE plpgsql;
-
-
 --
 -- Name: aggregatedenvdatalistattime(timestamp without time zone, timestamp without time zone); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -1946,42 +1931,6 @@ CREATE OR REPLACE FUNCTION public.getaggregatedevndatawithfilters(p_start_time t
                 when p_lctn is not null then ((lctn not like '') and ((select string_to_array(lctn, ' ')) <@ (select string_to_array(p_lctn, ','))))
             end
         order by timestamp DESC LIMIT p_limit; $$;
-
-
-CREATE TABLE public.tier2_RawHWInventory_History (
-                                                     Action VARCHAR(16) NOT NULL,                -- Added/Removed
-                                                     ID VARCHAR(64) NOT NULL,                    -- perhaps xname (path); as is from JSON
-                                                     FRUID VARCHAR(80) NOT NULL,                 -- perhaps <manufacturer>-<serial#>
-                                                     ForeignTimestamp VARCHAR(32) NOT NULL,      -- Foreign server timestamp string in RFC-3339 format
-                                                     DbUpdatedTimestamp TIMESTAMP NOT NULL,
-                                                     EntryNumber bigint NOT NULL,
-    PRIMARY KEY (Action, ID, ForeignTimestamp)  -- allows the use of upsert to eliminate duplicates
-);
-
-
-CREATE SEQUENCE public.tier2_RawHWInventory_History_entrynumber_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER SEQUENCE public.tier2_RawHWInventory_History_entrynumber_seq OWNED BY public.tier2_RawHWInventory_History.entrynumber;
-ALTER TABLE ONLY public.tier2_RawHWInventory_History ALTER COLUMN entrynumber SET DEFAULT nextval('public.tier2_RawHWInventory_History_entrynumber_seq'::regclass);
-SELECT pg_catalog.setval('public.tier2_RawHWInventory_History_entrynumber_seq', 1, false);
-
-
-CREATE OR REPLACE FUNCTION public.insertorupdaterawhwinventorydata(
-    p_action VarChar, p_id VarChar, p_fruid VarChar,  p_ForeignTimestamp VarChar, p_DbUpdatedTimestamp TIMESTAMP) RETURNS void
-    LANGUAGE sql
-AS $$
-insert into tier2_RawHWInventory_History(action, id, fruid, ForeignTimestamp, DbUpdatedTimestamp)
-values(p_action, p_id, p_fruid, p_ForeignTimestamp, p_DbUpdatedTimestamp)
-on conflict(Action, ID, ForeignTimestamp) do update set action=p_action, id=p_id,
-                                                        ForeignTimestamp= p_ForeignTimestamp, DbUpdatedTimestamp=p_DbUpdatedTimestamp
-    ;
-$$;
 
 
 --
@@ -5675,35 +5624,6 @@ BEGIN
         WHERE (lctn = '' OR lctn = t.component_location OR position(lctn || '-' in t.component_location) = 1)
         ORDER BY t.foreign_timestamp DESC, t.component_location, t.action, t.component_fru_id
         LIMIT p_limit;
-    RETURN;
-END
-$$
-    LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION public.NoDuplicateRawReplacementHistory(p_start_time timestamp without time zone
-                                                                  , p_end_time timestamp without time zone)
-    RETURNS TABLE
-            (
-                foreign_timestamp  character varying,
-                Action             character varying,
-                component_location character varying,
-                component_fru_id   character varying
-            )
-AS
-$$
-DECLARE
-    start_time timestamp := coalesce(p_start_time, to_timestamp('0001', 'YYYY'));
-    end_time   timestamp := coalesce(p_end_time, to_timestamp('9999', 'YYYY'));
-BEGIN
-    return query
-        SELECT DISTINCT t.ForeignTimestamp
-                      , t.Action
-                      , t.id    AS component_location
-                      , t.fruid as component_fru_id
-        FROM public.tier2_RawHWInventory_History AS t
-        WHERE t.dbupdatedtimestamp >= start_time
-          AND t.dbupdatedtimestamp <= end_time;
     RETURN;
 END
 $$
