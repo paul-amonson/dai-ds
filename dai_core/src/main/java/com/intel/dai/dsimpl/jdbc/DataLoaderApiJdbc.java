@@ -300,7 +300,7 @@ public class DataLoaderApiJdbc implements DataLoaderApi {
 
     private static final String[] TABLES = { "BootImage", "Chassis", "ComputeNode",
             "Machine", "Rack", "ServiceNode", "ServiceOperation", "Switch", "WorkItem", "Diag_Tools", "MachineAdapterInstance", "RasMetaData", "CacheIpAddrToLctn", "CacheMacAddrToLctn",
-            "UcsConfigValue", "UniqueValues", "RawHWInventory_History", "Raw_DIMM", "Raw_FRU_Host"};
+            "UcsConfigValue", "UniqueValues", "Raw_DIMM", "Raw_FRU_Host"};
     private static final Map<String, String> HISTORY_TABLES;
     private static final Map<String, String> TABLE_TO_PROCEDURE;
     private static final Map<String, String[]> TABLE_FIELDS;
@@ -409,9 +409,8 @@ public class DataLoaderApiJdbc implements DataLoaderApi {
         TABLE_FIELDS.put("CacheMacAddrToLctn", cacheMacAddrToLctnFields);
         TABLE_FIELDS.put("UcsConfigValue", ucsConfigValueFields);
         TABLE_FIELDS.put("UniqueValues", uniqueValuesFields);
-        TABLE_FIELDS.put("RawHWInventory_History", rawinventoryhistoryFields);
-        TABLE_FIELDS.put("Raw_DIMM", rawDimmFields);
         TABLE_FIELDS.put("Raw_FRU_Host", rawFruHostFields);
+        TABLE_FIELDS.put("Raw_DIMM", rawDimmFields);
 
         HISTORY_TABLES = new HashMap<>();
         HISTORY_TABLES.put("Adapter", "Adapter_History");
@@ -467,7 +466,6 @@ public class DataLoaderApiJdbc implements DataLoaderApi {
         TABLE_TO_PROCEDURE.put("CacheMacAddrToLctn", "get_cachemacaddrtolctn_records()");
         TABLE_TO_PROCEDURE.put("UcsConfigValue", "get_ucsconfigvalue_records()");
         TABLE_TO_PROCEDURE.put("UniqueValues", "get_uniquevalues_records()");
-        TABLE_TO_PROCEDURE.put("RawHWInventory_History", "get_rawinventoryhistory_records()");
         TABLE_TO_PROCEDURE.put("NodeInventory_History", "get_nodeinventoryhistory_records()");
     }
 
