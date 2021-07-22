@@ -300,7 +300,7 @@ public class DataLoaderApiJdbc implements DataLoaderApi {
 
     private static final String[] TABLES = { "BootImage", "Chassis", "ComputeNode",
             "Machine", "Rack", "ServiceNode", "ServiceOperation", "Switch", "WorkItem", "Diag_Tools", "MachineAdapterInstance", "RasMetaData", "CacheIpAddrToLctn", "CacheMacAddrToLctn",
-            "UcsConfigValue", "UniqueValues", "Raw_DIMM", "Raw_FRU_Host"};
+            "UcsConfigValue", "UniqueValues", "Raw_FRU_Host", "Raw_DIMM"};
     private static final Map<String, String> HISTORY_TABLES;
     private static final Map<String, String> TABLE_TO_PROCEDURE;
     private static final Map<String, String[]> TABLE_FIELDS;
