@@ -1969,7 +1969,7 @@ $$;
 -- Name: getnodeinventoryinfoforlctn(p_lctn character varying, p_limit integer); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE OR REPLACE FUNCTION public.getnodeinventoryinfoforlctn(p_lctn character varying, p_sernum character varying, p_limit integer) RETURNS TABLE(Lctn VarChar(25), InventoryInfo VarChar(16384), InventoryTimestamp TIMESTAMP, Sernum VarChar(50), EntryNumber BigInt, DetectedInvMismatch VarChar(16384))
+CREATE OR REPLACE FUNCTION public.getnodeinventoryinfoforlctn(p_lctn character varying, p_sernum character varying, p_limit integer) RETURNS TABLE(Lctn VarChar(25), InventoryInfo VarChar(16384), InventoryTimestamp TIMESTAMP, Sernum VarChar(50), EntryNumber BigInt)
     LANGUAGE sql
     AS $$
         select IH.Lctn, IH.InventoryInfo, IH.InventoryTimestamp, IH.Sernum, IH.EntryNumber
